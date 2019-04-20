@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD 3.0 Mapper//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.dao.ProviderMapper">
+    <select id="getProviders" resultType="provider">
+        select p.id,p.proAddress,p.proCode,p.proName,p.proContact,
+        p.proPhone,p.proFax,p.creationDate from smbms_provider
+        p where 1=1
+        <if test=" proCode!=null and proCode!='' ">
+            and p.proCode like concat('%',#{proCode},'%')
+        </if>
+        <if test="proName!=null and proName!=''">
+            and proName like concat('%',#{proName},'%')
+        </if>
+        order by p.creationDate DESC limit #{currPageNo},#{pageSize}
+    </select>
+
+
+    <select id="getProvidersCount" resultType="int">
+        select count(1) as count from smbms_provider p where 1=1
+        <if test=" proCode!=null and proCode!='' ">
+            and p.proCode like concat('%',#{proCode},'%')
+        </if>
+        <if test="proName!=null and proName!=''">
+            and proName like concat('%',#{proName},'%')
+        </if>
+    </select>
+
+
+    <insert id="addProvider" parameterType="provider">
+        INSERT INTO smbms_provider(`proCode`,`proName`,`proDesc`,`proContact`,`proPhone`,`proAddress`,`proFax`,`createdBy`,`creationDate`,`companyLicPicPath`,`orgCodePicPath`)
+        VALUES(#{proCode},#{proName},#{proDesc},#{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate},#{companyLicPicPath},#{orgCodePicPath})
+    </insert>
+    <select id="getProviderById" parameterType="Integer">
+        select * from smbms_provider where id=#{id}
+    </select>
+    <update id="UpdateProvider" parameterType="provider">
+        update smbms_provider
+        <trim prefix="set" prefixOverrides="," suffix="where id=#{id}">
+            <if test="proCode!=null and proCode!=''">proCode=#{proCode},</if>
+            <if test="proName!=null and proName!=''">proName=#{proName},</if>
+            <if test="proDesc!=null and proDesc!=''">proDesc=#{proDesc},</if>
+            <if test="proContact!=null and proContact!=''">proContact=#{proContact},</if>
+            <if test="proPhone!=null and proPhone!=''">proPhone=#{proPhone},</if>
+            <if test="proAddress!=null and proAddress!=''">proAddress=#{proAddress},</if>
+            <if test="proFax!=null and proFax!=''">proFax=#{proFax},</if>
+            <if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+            <if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+        </trim>
+    </update>
+</mapper>

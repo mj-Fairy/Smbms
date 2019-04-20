@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD 3.0 Mapper//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.dao.UserMapper">
+    <select id="getUsers" resultType="user">
+        select * from smbms_user
+        <trim prefix="where">
+            userCode=#{userCode}
+        </trim>
+    </select>
+    <select id="getUserByCode" parameterType="String" resultType="user">
+        select * from smbms_user where userCode=#{userCode}
+    </select>
+    <select id="getUserById" parameterType="Integer" resultMap="getUserByIdMap">
+        SELECT u.id as u_id,r.roleName,u.* FROM smbms_user u,smbms_role r WHERE u.userRole=r.id and u.id=#{id}
+    </select>
+    <resultMap id="getUserByIdMap" type="user">
+        <id property="id" column="u_id"/>
+        <result property="userName" column="userName"/>
+        <result property="userCode" column="userCode"/>
+        <result property="gender" column="gender"/>
+        <result property="address" column="address"/>
+        <result property="birthday" column="birthday"/>
+        <result property="age" column="age"/>
+        <result property="phone" column="phone"/>
+        <result property="userRole" column="userRole"/>
+        <result property="userRoleName" column="userRoleName"/>
+        <result property="idPicPath" column="idPicPath"/>
+        <result property="workPicPath" column="workPicPath"/>
+        <result property="userPassword" column="userPassword"/>
+        <result property="modifyBy" column="modifyBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <result property="creationDate" column="creationDate"/>
+        <result property="createdBy" column="createdBy"/>
+    </resultMap>
+    <select id="getUserList" resultMap="getUserListMap">
+        select u.id as u_id,u.userCode,u.userName,u.gender,(year(now())-year(u.birthday))
+        age,u.phone,u.userRole,r.roleName as
+        userRoleName from smbms_user u,smbms_role r where u.userRole = r.id
+        <if test="userName!=null and userName!=''">
+            and u.userName like concat('%',#{userName},'%')
+        </if>
+        <if test="userRole>0">
+            and u.userRole=#{userRole}
+        </if>
+        order by u.creationDate desc limit #{currentPageNo},#{pageSize}
+    </select>
+    <resultMap id="getUserListMap" type="user">
+        <id property="id" column="u_id"/>
+        <result property="userName" column="userName"/>
+        <result property="userCode" column="userCode"/>
+        <result property="gender" column="gender"/>
+        <result property="age" column="age"/>
+        <result property="phone" column="phone"/>
+        <result property="userRole" column="userRole"/>
+        <result property="userRoleName" column="userRoleName"/>
+    </resultMap>
+    <select id="getUsersListCount" resultType="int">
+        SELECT count(1) from smbms_user where 1=1
+        <if test="userName!=null and userName!=''">
+            and userName like concat('%',#{userName},'%')
+        </if>
+        <if test="userRole>0">
+            and userRole=#{userRole}
+        </if>
+    </select>
+    <insert id="addUser" parameterType="User">
+       INSERT INTO smbms_user(`userCode`,`userName`,`userPassword`,`gender`,`birthday`,`phone`,
+                              `address`,`userRole`,`createdBy`,`creationDate`,`idPicPath`,`workPicPath`)
+      VALUES(#{userCode},#{userName},#{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate},#{idPicPath},#{workPicPath})
+    </insert>
+    <update id="UpdateUser" parameterType="User">
+        update smbms_user
+        <trim prefix="set" suffix="where id=#{id}" suffixOverrides=",">
+            <if test="userName!=null and userName!=''">userName=#{userName},</if>
+            <if test="gender!=null">gender=#{gender},</if>
+            <if test="birthday!=null">birthday=#{birthday},</if>
+            <if test="phone!=null and phone!=''">phone=#{phone},</if>
+            <if test="address!=null and address!=''">address=#{address},</if>
+            <if test="userRole!=null">userRole=#{userRole},</if>
+            <if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+            <if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+        </trim>
+    </update>
+    <delete id="deleteUser" parameterType="Integer">
+        delete from  smbms_user  WHERE id =#{id}
+    </delete>
+    <!--修改密码-->
+    <update id="updateUserPwd" parameterType="user">
+        update smbms_user
+        <trim prefix="set" suffix="where id=#{id}">
+            <if test="userPassword!=null">
+                userPassword =#{userPassword}
+            </if>
+        </trim>
+    </update>
+</mapper>
